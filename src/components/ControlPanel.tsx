@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { SimulationParams } from '../types';
 import { presetScenarios } from '../presets/scenarios';
+import { Icons, presetIconMap } from './icons';
+import { Tooltip } from './Tooltip';
 
 interface ControlPanelProps {
   params: SimulationParams;
@@ -13,6 +15,7 @@ interface ControlPanelProps {
 interface FieldConfig {
   key: keyof SimulationParams;
   label: string;
+  help: string;
   min: number;
   max: number;
   step: number;
@@ -20,47 +23,117 @@ interface FieldConfig {
   color: string;
 }
 
-const fieldGroups: { title: string; emoji: string; color: string; fields: FieldConfig[] }[] = [
+const fieldGroups: { title: string; icon: keyof typeof Icons; color: string; fields: FieldConfig[] }[] = [
   {
-    title: 'Capital & Revenue',
-    emoji: '💰',
+    title: 'Money & Income',
+    icon: 'IndianRupee',
     color: 'var(--nb-yellow-light)',
     fields: [
-      { key: 'initialCapital', label: 'Initial Capital', min: 0, max: 10000000, step: 5000, unit: '$', color: 'var(--nb-yellow)' },
-      { key: 'monthlyRevenueBase', label: 'Monthly Revenue', min: 0, max: 1000000, step: 500, unit: '$', color: 'var(--nb-yellow)' },
-      { key: 'revenueGrowthRate', label: 'Growth Rate', min: -20, max: 50, step: 0.5, unit: '%', color: 'var(--nb-green)' },
-      { key: 'revenueRandomness', label: 'Revenue Variance', min: 0, max: 100, step: 1, unit: '%', color: 'var(--nb-orange)' },
+      {
+        key: 'initialCapital',
+        label: 'Starting Money',
+        help: 'Total money the startup begins with — like initial savings or seed investment.',
+        min: 0, max: 50000000, step: 50000, unit: '₹', color: 'var(--nb-yellow)',
+      },
+      {
+        key: 'monthlyRevenueBase',
+        label: 'Monthly Income',
+        help: 'How much money comes in each month from customers/sales.',
+        min: 0, max: 5000000, step: 5000, unit: '₹', color: 'var(--nb-yellow)',
+      },
+      {
+        key: 'revenueGrowthRate',
+        label: 'Growth Rate',
+        help: 'How fast monthly income grows. 5% means income goes up 5% each month (compounding).',
+        min: -20, max: 50, step: 0.5, unit: '%', color: 'var(--nb-green)',
+      },
+      {
+        key: 'revenueRandomness',
+        label: 'Income Randomness',
+        help: 'How unpredictable your income is. Low = steady income like salaries. High = variable like sales.',
+        min: 0, max: 100, step: 1, unit: '%', color: 'var(--nb-orange)',
+      },
     ],
   },
   {
-    title: 'Costs',
-    emoji: '📉',
+    title: 'Expenses',
+    icon: 'TrendingDown',
     color: 'var(--nb-red-light)',
     fields: [
-      { key: 'fixedMonthlyCosts', label: 'Fixed Monthly Costs', min: 0, max: 1000000, step: 500, unit: '$', color: 'var(--nb-red)' },
-      { key: 'costSpikeProbability', label: 'Cost Spike Chance', min: 0, max: 100, step: 1, unit: '%', color: 'var(--nb-red)' },
-      { key: 'costSpikeMin', label: 'Spike Min', min: 0, max: 500000, step: 500, unit: '$', color: 'var(--nb-red)' },
-      { key: 'costSpikeMax', label: 'Spike Max', min: 0, max: 1000000, step: 1000, unit: '$', color: 'var(--nb-red)' },
+      {
+        key: 'fixedMonthlyCosts',
+        label: 'Monthly Expenses',
+        help: 'Fixed costs every month — rent, salaries, electricity, internet, etc.',
+        min: 0, max: 5000000, step: 5000, unit: '₹', color: 'var(--nb-red)',
+      },
+      {
+        key: 'costSpikeProbability',
+        label: 'Surprise Cost Chance',
+        help: 'Chance (%) of an unexpected expense in any month — like equipment failure or legal costs.',
+        min: 0, max: 100, step: 1, unit: '%', color: 'var(--nb-red)',
+      },
+      {
+        key: 'costSpikeMin',
+        label: 'Surprise Min',
+        help: 'Minimum amount of a surprise expense when it happens.',
+        min: 0, max: 2000000, step: 5000, unit: '₹', color: 'var(--nb-red)',
+      },
+      {
+        key: 'costSpikeMax',
+        label: 'Surprise Max',
+        help: 'Maximum amount of a surprise expense when it happens.',
+        min: 0, max: 5000000, step: 10000, unit: '₹', color: 'var(--nb-red)',
+      },
     ],
   },
   {
-    title: 'Funding',
-    emoji: '🏦',
+    title: 'Funding (Investor Money)',
+    icon: 'Wallet',
     color: 'var(--nb-blue-light)',
     fields: [
-      { key: 'fundingProbability', label: 'Funding Chance', min: 0, max: 100, step: 1, unit: '%/mo', color: 'var(--nb-blue)' },
-      { key: 'fundingMin', label: 'Funding Min', min: 0, max: 5000000, step: 5000, unit: '$', color: 'var(--nb-blue)' },
-      { key: 'fundingMax', label: 'Funding Max', min: 0, max: 10000000, step: 10000, unit: '$', color: 'var(--nb-blue)' },
+      {
+        key: 'fundingProbability',
+        label: 'Funding Chance',
+        help: 'Probability (%) that an investor gives money in any month. 0% = no investors (bootstrapped).',
+        min: 0, max: 100, step: 1, unit: '%/mo', color: 'var(--nb-blue)',
+      },
+      {
+        key: 'fundingMin',
+        label: 'Funding Min',
+        help: 'Smallest possible funding amount when an investor does invest.',
+        min: 0, max: 50000000, step: 50000, unit: '₹', color: 'var(--nb-blue)',
+      },
+      {
+        key: 'fundingMax',
+        label: 'Funding Max',
+        help: 'Largest possible funding amount when an investor does invest.',
+        min: 0, max: 100000000, step: 100000, unit: '₹', color: 'var(--nb-blue)',
+      },
     ],
   },
   {
-    title: 'Market & Simulation',
-    emoji: '🌐',
+    title: 'Simulation Settings',
+    icon: 'Settings',
     color: 'var(--nb-purple-light)',
     fields: [
-      { key: 'marketVolatility', label: 'Market Volatility', min: 0, max: 50, step: 1, unit: '%', color: 'var(--nb-purple)' },
-      { key: 'simulationDuration', label: 'Duration', min: 6, max: 120, step: 1, unit: 'mo', color: 'var(--nb-purple)' },
-      { key: 'numSimulations', label: 'Simulations', min: 10, max: 5000, step: 10, unit: 'runs', color: 'var(--nb-purple)' },
+      {
+        key: 'marketVolatility',
+        label: 'Market Ups & Downs',
+        help: 'How much the overall market (economy) affects your business. Higher = more unpredictable environment.',
+        min: 0, max: 50, step: 1, unit: '%', color: 'var(--nb-purple)',
+      },
+      {
+        key: 'simulationDuration',
+        label: 'Time Period',
+        help: 'How many months to simulate. 36 months = 3 years.',
+        min: 6, max: 120, step: 1, unit: 'months', color: 'var(--nb-purple)',
+      },
+      {
+        key: 'numSimulations',
+        label: 'Number of Runs',
+        help: 'How many random scenarios to simulate. More runs = more accurate probability. 500+ recommended.',
+        min: 10, max: 5000, step: 10, unit: 'runs', color: 'var(--nb-purple)',
+      },
     ],
   },
 ];
@@ -85,12 +158,13 @@ export default function ControlPanel({
   };
 
   const formatValue = (value: number, unit: string): string => {
-    if (unit === '$') {
-      if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
-      if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
-      return `$${value}`;
+    if (unit === '₹') {
+      if (value >= 10000000) return `₹${(value / 10000000).toFixed(1)}Cr`;
+      if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
+      if (value >= 1000) return `₹${(value / 1000).toFixed(0)}K`;
+      return `₹${value}`;
     }
-    return `${value}${unit}`;
+    return `${value}${unit === 'months' ? ' mo' : unit === 'runs' ? '' : unit}`;
   };
 
   return (
@@ -98,71 +172,84 @@ export default function ControlPanel({
       {/* Presets */}
       <div style={styles.section}>
         <h3 style={styles.sectionTitle}>
-          <span>🎭</span> Presets
+          <Icons.Sparkles size={14} strokeWidth={2.5} />
+          Quick Presets (Indian Startups)
         </h3>
         <div style={styles.presetGrid}>
-          {presetScenarios.map((preset) => (
-            <button
-              key={preset.name}
-              className="nb-btn nb-btn-sm"
-              style={{
-                ...styles.presetBtn,
-                background: activePreset === preset.name ? 'var(--nb-yellow)' : 'var(--nb-surface)',
-                width: '100%',
-                justifyContent: 'flex-start',
-              }}
-              onClick={() => applyPreset(preset)}
-              title={preset.description}
-            >
-              <span>{preset.emoji}</span>
-              <span style={{ fontSize: '0.72rem' }}>{preset.name}</span>
-            </button>
-          ))}
+          {presetScenarios.map((preset) => {
+            const PresetIcon = presetIconMap[preset.emoji];
+            return (
+              <button
+                key={preset.name}
+                className="nb-btn nb-btn-sm"
+                style={{
+                  ...styles.presetBtn,
+                  background: activePreset === preset.name ? 'var(--nb-yellow)' : 'var(--nb-surface)',
+                  width: '100%',
+                  justifyContent: 'flex-start',
+                }}
+                onClick={() => applyPreset(preset)}
+                title={preset.description}
+              >
+                {PresetIcon && <PresetIcon size={14} strokeWidth={2.5} />}
+                <span style={{ fontSize: '0.72rem' }}>{preset.name}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Parameter Groups */}
-      {fieldGroups.map((group) => (
-        <div key={group.title} style={styles.section}>
-          <h3 style={{ ...styles.sectionTitle, background: group.color }}>
-            <span>{group.emoji}</span> {group.title}
-          </h3>
-          <div style={styles.fieldsGrid}>
-            {group.fields.map((field) => (
-              <div key={field.key} style={styles.fieldWrapper}>
-                <div style={styles.fieldHeader}>
-                  <label className="nb-label" style={{ margin: 0 }}>{field.label}</label>
-                  <span style={styles.fieldValue}>
-                    {formatValue(params[field.key], field.unit)}
-                  </span>
+      {fieldGroups.map((group) => {
+        const GroupIcon = Icons[group.icon];
+        return (
+          <div key={group.title} style={styles.section}>
+            <h3 style={{ ...styles.sectionTitle, background: group.color }}>
+              <GroupIcon size={14} strokeWidth={2.5} />
+              {group.title}
+            </h3>
+            <div style={styles.fieldsGrid}>
+              {group.fields.map((field) => (
+                <div key={field.key} style={styles.fieldWrapper}>
+                  <div style={styles.fieldHeader}>
+                    <div style={styles.labelRow}>
+                      <label className="nb-label" style={{ margin: 0 }}>{field.label}</label>
+                      <Tooltip text={field.help}>
+                        <Icons.Info size={13} strokeWidth={2} style={{ color: '#999' }} />
+                      </Tooltip>
+                    </div>
+                    <span style={styles.fieldValue}>
+                      {formatValue(params[field.key], field.unit)}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={field.min}
+                    max={field.max}
+                    step={field.step}
+                    value={params[field.key]}
+                    onChange={(e) => updateParam(field.key, parseFloat(e.target.value))}
+                    style={{
+                      ...styles.slider,
+                      accentColor: field.color,
+                    }}
+                  />
+                  <input
+                    type="number"
+                    className="nb-input"
+                    value={params[field.key]}
+                    onChange={(e) => updateParam(field.key, parseFloat(e.target.value) || 0)}
+                    min={field.min}
+                    max={field.max}
+                    step={field.step}
+                    style={styles.numberInput}
+                  />
                 </div>
-                <input
-                  type="range"
-                  min={field.min}
-                  max={field.max}
-                  step={field.step}
-                  value={params[field.key]}
-                  onChange={(e) => updateParam(field.key, parseFloat(e.target.value))}
-                  style={{
-                    ...styles.slider,
-                    accentColor: field.color,
-                  }}
-                />
-                <input
-                  type="number"
-                  className="nb-input"
-                  value={params[field.key]}
-                  onChange={(e) => updateParam(field.key, parseFloat(e.target.value) || 0)}
-                  min={field.min}
-                  max={field.max}
-                  step={field.step}
-                  style={styles.numberInput}
-                />
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
 
       {/* Run Button */}
       <div style={styles.runSection}>
@@ -187,12 +274,12 @@ export default function ControlPanel({
         >
           {isRunning ? (
             <>
-              <span style={styles.spinner}>⏳</span>
+              <Icons.Timer size={18} strokeWidth={2.5} style={{ animation: 'pulse 1s ease infinite' }} />
               SIMULATING...
             </>
           ) : (
             <>
-              <span>🚀</span>
+              <Icons.Rocket size={18} strokeWidth={2.5} />
               RUN {params.numSimulations.toLocaleString()} SIMULATIONS
             </>
           )}
@@ -216,10 +303,10 @@ const styles: Record<string, React.CSSProperties> = {
   },
   sectionTitle: {
     fontFamily: 'var(--font-display)',
-    fontSize: '0.85rem',
+    fontSize: '0.82rem',
     fontWeight: 700,
     textTransform: 'uppercase' as const,
-    letterSpacing: '1px',
+    letterSpacing: '0.5px',
     padding: '10px 16px',
     borderBottom: 'var(--nb-border)',
     display: 'flex',
@@ -253,9 +340,14 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  labelRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+  },
   fieldValue: {
     fontFamily: 'var(--font-mono)',
-    fontSize: '0.8rem',
+    fontSize: '0.78rem',
     fontWeight: 700,
     background: 'var(--nb-black)',
     color: 'var(--nb-yellow)',
@@ -318,9 +410,5 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 700,
     fontSize: '0.85rem',
     minWidth: 40,
-  },
-  spinner: {
-    animation: 'pulse 1s ease infinite',
-    display: 'inline-block',
   },
 };

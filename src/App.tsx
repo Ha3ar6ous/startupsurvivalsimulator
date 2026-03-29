@@ -9,13 +9,15 @@ import CapitalChart from './components/CapitalChart';
 import OutcomeHistogram from './components/OutcomeHistogram';
 import SurvivalGauge from './components/SurvivalGauge';
 import AnimatedRun from './components/AnimatedRun';
+import GuidePanel from './components/GuidePanel';
+import { Icons } from './components/icons';
 
 export default function App() {
   const [params, setParams] = useState<SimulationParams>(defaultParams as SimulationParams);
   const [results, setResults] = useState<SimulationResults | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [activeTab, setActiveTab] = useState<'charts' | 'animated'>('charts');
+  const [activeTab, setActiveTab] = useState<'charts' | 'animated' | 'guide'>('guide');
   const [runCount, setRunCount] = useState(0);
   const runTimeRef = useRef<number>(0);
 
@@ -23,7 +25,6 @@ export default function App() {
     setIsRunning(true);
     setProgress(0);
 
-    // Use requestAnimationFrame to keep UI responsive
     requestAnimationFrame(() => {
       const startTime = performance.now();
 
@@ -35,6 +36,7 @@ export default function App() {
       setResults(simResults);
       setProgress(100);
       setRunCount((c) => c + 1);
+      setActiveTab('charts');
 
       setTimeout(() => {
         setIsRunning(false);
@@ -63,30 +65,44 @@ export default function App() {
           {/* Tab Switcher */}
           <div style={styles.tabBar}>
             <button
+              className={`nb-btn nb-btn-sm ${activeTab === 'guide' ? 'nb-btn-primary' : ''}`}
+              onClick={() => setActiveTab('guide')}
+              style={styles.tabBtn}
+            >
+              <Icons.BookOpen size={14} strokeWidth={2.5} />
+              How It Works
+            </button>
+            <button
               className={`nb-btn nb-btn-sm ${activeTab === 'charts' ? 'nb-btn-primary' : ''}`}
               onClick={() => setActiveTab('charts')}
               style={styles.tabBtn}
             >
-              <span>📊</span> Full Simulation
+              <Icons.BarChart3 size={14} strokeWidth={2.5} />
+              Results
             </button>
             <button
               className={`nb-btn nb-btn-sm ${activeTab === 'animated' ? 'nb-btn-primary' : ''}`}
               onClick={() => setActiveTab('animated')}
               style={styles.tabBtn}
             >
-              <span>🎬</span> Animated Run
+              <Icons.Eye size={14} strokeWidth={2.5} />
+              Watch a Run
             </button>
             {runTimeRef.current > 0 && (
               <span style={styles.runTime}>
-                ⚡ {runTimeRef.current}ms • Run #{runCount}
+                <Icons.Zap size={12} strokeWidth={2.5} />
+                {runTimeRef.current}ms | Run #{runCount}
               </span>
             )}
           </div>
 
-          {activeTab === 'charts' ? (
+          {activeTab === 'guide' ? (
+            <div style={styles.resultsArea}>
+              <GuidePanel />
+            </div>
+          ) : activeTab === 'charts' ? (
             <div style={styles.resultsArea}>
               <ResultsPanel results={results} params={params} />
-
               {results && (
                 <>
                   <SurvivalGauge rate={results.survivalRate} />
@@ -105,11 +121,12 @@ export default function App() {
 
       {/* Footer */}
       <footer style={styles.footer}>
-        <span>
-          🎲 Startup Survival Simulator — Monte Carlo Engine
+        <span style={styles.footerLeft}>
+          <Icons.Dices size={14} strokeWidth={2.5} />
+          Startup Survival Simulator — Monte Carlo Engine
         </span>
         <span style={styles.footerRight}>
-          Built with React + Recharts • Neobrutalism UI
+          Built with React + Recharts | Modeling & Simulation Project
         </span>
       </footer>
     </div>
@@ -149,6 +166,7 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 10,
     marginBottom: 24,
     alignItems: 'center',
+    flexWrap: 'wrap' as const,
   },
   tabBtn: {
     textTransform: 'none' as const,
@@ -156,12 +174,15 @@ const styles: Record<string, React.CSSProperties> = {
   runTime: {
     marginLeft: 'auto',
     fontFamily: 'var(--font-mono)',
-    fontSize: '0.78rem',
+    fontSize: '0.75rem',
     fontWeight: 700,
     color: '#666',
     background: 'var(--nb-surface)',
     border: '2px solid #ddd',
     padding: '4px 12px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 4,
   },
   resultsArea: {
     display: 'flex',
@@ -180,6 +201,11 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     flexWrap: 'wrap' as const,
     gap: 8,
+  },
+  footerLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
   },
   footerRight: {
     color: '#666',

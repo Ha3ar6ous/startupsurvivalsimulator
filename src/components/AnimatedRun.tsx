@@ -9,6 +9,7 @@ import {
   ReferenceLine,
 } from 'recharts';
 import type { SimulationParams, MonthData } from '../types';
+import { Icons } from './icons';
 
 interface AnimatedRunProps {
   params: SimulationParams;
@@ -19,6 +20,13 @@ function gaussianRandom(mean: number = 0, stdDev: number = 1): number {
   const u2 = Math.random();
   const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
   return z * stdDev + mean;
+}
+
+function formatINR(v: number): string {
+  if (Math.abs(v) >= 10000000) return `₹${(v / 10000000).toFixed(1)}Cr`;
+  if (Math.abs(v) >= 100000) return `₹${(v / 100000).toFixed(1)}L`;
+  if (Math.abs(v) >= 1000) return `₹${(v / 1000).toFixed(0)}K`;
+  return `₹${v}`;
 }
 
 export default function AnimatedRun({ params }: AnimatedRunProps) {
@@ -115,48 +123,67 @@ export default function AnimatedRun({ params }: AnimatedRunProps) {
     <div style={styles.container} className="nb-card">
       <div style={styles.header}>
         <h3 style={styles.title}>
-          <span>🎬</span> Animated Single Run
+          <Icons.Eye size={18} strokeWidth={2.5} />
+          Watch a Single Run
         </h3>
         <div style={styles.controls}>
           {!isPlaying ? (
             <button className="nb-btn nb-btn-sm nb-btn-primary" onClick={play}>
-              {isDone ? '🔄 Replay' : '▶ Play'}
+              <Icons.Play size={14} strokeWidth={2.5} />
+              {isDone ? 'Replay' : 'Play'}
             </button>
           ) : (
             <button className="nb-btn nb-btn-sm nb-btn-danger" onClick={pause}>
-              ⏸ Pause
+              <Icons.Pause size={14} strokeWidth={2.5} />
+              Pause
             </button>
           )}
           <button className="nb-btn nb-btn-sm" onClick={reset}>
-            ↩ Reset
+            <Icons.RotateCcw size={14} strokeWidth={2.5} />
+            Reset
           </button>
         </div>
       </div>
 
+      <p style={styles.explainer}>
+        <Icons.Info size={13} strokeWidth={2} style={{ flexShrink: 0 }} />
+        This shows ONE possible future for your startup, month by month. 
+        Watch the capital line — if it hits ₹0, the startup has gone bankrupt! 
+        Press Play and see what happens.
+      </p>
+
       {/* Status Bar */}
       <div style={styles.statusBar}>
         <div style={styles.statusItem}>
-          <span style={styles.statusLabel}>Month</span>
+          <span style={styles.statusLabel}>
+            <Icons.Clock size={11} strokeWidth={2.5} /> Month
+          </span>
           <span style={styles.statusValue}>{currentMonth} / {params.simulationDuration}</span>
         </div>
         <div style={styles.statusItem}>
-          <span style={styles.statusLabel}>Capital</span>
+          <span style={styles.statusLabel}>
+            <Icons.IndianRupee size={11} strokeWidth={2.5} /> Capital
+          </span>
           <span style={{
             ...styles.statusValue,
             color: currentCapital >= 0 ? 'var(--nb-green)' : 'var(--nb-red)',
           }}>
-            ${currentCapital.toLocaleString()}
+            ₹{currentCapital.toLocaleString('en-IN')}
           </span>
         </div>
         <div style={styles.statusItem}>
-          <span style={styles.statusLabel}>Status</span>
+          <span style={styles.statusLabel}>
+            <Icons.Activity size={11} strokeWidth={2.5} /> Status
+          </span>
           <span style={{
             ...styles.statusBadge,
             background: status === 'dead' ? 'var(--nb-red)' :
               status === 'alive' ? 'var(--nb-green)' : 'var(--nb-yellow)',
             color: status === 'dead' ? 'white' : 'var(--nb-black)',
           }}>
-            {status === 'dead' ? '💀 DEAD' : status === 'alive' ? '✅ SURVIVED' : '⏳ WAITING'}
+            {status === 'dead' && <><Icons.Skull size={12} strokeWidth={2.5} /> BANKRUPT</>}
+            {status === 'alive' && <><Icons.CheckCircle2 size={12} strokeWidth={2.5} /> SURVIVED</>}
+            {status === 'idle' && <><Icons.Timer size={12} strokeWidth={2.5} /> WAITING</>}
           </span>
         </div>
       </div>
@@ -176,11 +203,7 @@ export default function AnimatedRun({ params }: AnimatedRunProps) {
               stroke="#1a1a1a"
               strokeWidth={2}
               tick={{ fontSize: 11, fontFamily: 'Space Mono' }}
-              tickFormatter={(v: number) => {
-                if (Math.abs(v) >= 1000000) return `$${(v / 1000000).toFixed(1)}M`;
-                if (Math.abs(v) >= 1000) return `$${(v / 1000).toFixed(0)}K`;
-                return `$${v}`;
-              }}
+              tickFormatter={formatINR}
             />
             <Tooltip
               contentStyle={{
@@ -190,6 +213,8 @@ export default function AnimatedRun({ params }: AnimatedRunProps) {
                 fontFamily: 'Space Mono',
                 fontSize: 12,
               }}
+              formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, 'Capital']}
+              labelFormatter={(label: number) => `Month ${label}`}
             />
             <ReferenceLine y={0} stroke="#EF4444" strokeWidth={2} strokeDasharray="8 4" />
             <Line
@@ -215,7 +240,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 8,
   },
   title: {
     fontSize: '1rem',
@@ -229,6 +254,18 @@ const styles: Record<string, React.CSSProperties> = {
   controls: {
     display: 'flex',
     gap: 8,
+  },
+  explainer: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 6,
+    fontSize: '0.78rem',
+    color: '#777',
+    lineHeight: 1.5,
+    marginBottom: 16,
+    padding: '8px 12px',
+    background: '#f8f8f5',
+    border: '1px solid #e0e0e0',
   },
   statusBar: {
     display: 'flex',
@@ -245,6 +282,9 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 2,
   },
   statusLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
     fontSize: '0.65rem',
     fontWeight: 700,
     textTransform: 'uppercase' as const,
@@ -258,6 +298,9 @@ const styles: Record<string, React.CSSProperties> = {
     color: 'var(--nb-yellow)',
   },
   statusBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 4,
     padding: '2px 8px',
     fontWeight: 700,
     fontSize: '0.7rem',

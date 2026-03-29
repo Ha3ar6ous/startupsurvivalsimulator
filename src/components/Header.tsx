@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Icons } from './icons';
 
 export default function Header() {
   const [glitch, setGlitch] = useState(false);
@@ -16,8 +17,8 @@ export default function Header() {
       <div style={styles.inner}>
         <div style={styles.titleRow}>
           <div style={styles.badge}>
-            <span style={styles.badgeIcon}>🎲</span>
-            <span>MONTE CARLO</span>
+            <Icons.Dices size={16} />
+            <span>MONTE CARLO SIMULATION</span>
           </div>
           <h1 style={{
             ...styles.title,
@@ -26,19 +27,42 @@ export default function Header() {
             Startup Survival Simulator
           </h1>
           <p style={styles.subtitle}>
-            Model startup performance under uncertainty using probabilistic simulation.
-            Configure parameters, run thousands of scenarios, and visualize survival outcomes.
+            Understand how startups survive or fail under uncertainty. Tweak parameters, 
+            run thousands of random scenarios, and see the probability of survival — 
+            all powered by Monte Carlo simulation.
           </p>
         </div>
         <div style={styles.stats}>
           <div style={{ ...styles.chip, background: 'var(--nb-yellow)' }}>
-            <span>⚡</span> Real-time Engine
+            <Icons.Activity size={14} strokeWidth={2.5} />
+            Real-time Engine
           </div>
           <div style={{ ...styles.chip, background: 'var(--nb-blue-light)' }}>
-            <span>📊</span> Interactive Charts
+            <Icons.BarChart3 size={14} strokeWidth={2.5} />
+            Interactive Charts
           </div>
           <div style={{ ...styles.chip, background: 'var(--nb-green-light)' }}>
-            <span>🎯</span> Up to 5000 Runs
+            <Icons.IndianRupee size={14} strokeWidth={2.5} />
+            India Focused
+          </div>
+          <div style={{ ...styles.chip, background: 'var(--nb-orange-light)' }}>
+            <Icons.BookOpen size={14} strokeWidth={2.5} />
+            Learn M&S Concepts
+          </div>
+        </div>
+
+        {/* Indian Startup Marquee */}
+        <div style={styles.startupBanner}>
+          <span style={styles.bannerLabel}>
+            <Icons.Building2 size={12} strokeWidth={2.5} />
+            INSPIRED BY
+          </span>
+          <div style={styles.startupLogos}>
+            {indianStartups.map((s) => (
+              <span key={s.name} style={{ ...styles.startupLogo, color: s.color, borderColor: s.color }}>
+                {s.name}
+              </span>
+            ))}
           </div>
         </div>
       </div>
@@ -46,12 +70,25 @@ export default function Header() {
   );
 }
 
+const indianStartups = [
+  { name: 'Flipkart', color: '#2874F0' },
+  { name: 'Zomato', color: '#E23744' },
+  { name: 'Paytm', color: '#00BAF2' },
+  { name: 'Razorpay', color: '#3395FF' },
+  { name: 'CRED', color: '#E5E5E5' },
+  { name: 'Zerodha', color: '#387ED1' },
+  { name: 'Ola', color: '#1C8C37' },
+  { name: 'BYJU\'S', color: '#8B2F9A' },
+  { name: 'Zepto', color: '#6C2DC7' },
+  { name: 'boAt', color: '#E53935' },
+];
+
 const styles: Record<string, React.CSSProperties> = {
   header: {
     background: 'var(--nb-black)',
     color: 'var(--nb-white)',
     borderBottom: '4px solid var(--nb-yellow)',
-    padding: '32px 24px 28px',
+    padding: '32px 24px 24px',
   },
   inner: {
     maxWidth: 1440,
@@ -71,13 +108,10 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '4px 14px',
     border: '2px solid var(--nb-yellow)',
     fontWeight: 700,
-    fontSize: '0.75rem',
+    fontSize: '0.72rem',
     textTransform: 'uppercase' as const,
     letterSpacing: '1px',
     width: 'fit-content',
-  },
-  badgeIcon: {
-    fontSize: '1rem',
   },
   title: {
     fontFamily: 'var(--font-display)',
@@ -92,10 +126,10 @@ const styles: Record<string, React.CSSProperties> = {
     transform: 'skewX(-1deg)',
   },
   subtitle: {
-    fontSize: '1rem',
+    fontSize: '0.95rem',
     color: '#aaa',
-    maxWidth: 680,
-    lineHeight: 1.5,
+    maxWidth: 700,
+    lineHeight: 1.6,
   },
   stats: {
     display: 'flex',
@@ -110,9 +144,40 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '6px 14px',
     border: '2px solid var(--nb-black)',
     fontWeight: 700,
-    fontSize: '0.78rem',
+    fontSize: '0.75rem',
     color: 'var(--nb-black)',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.5px',
+  },
+  startupBanner: {
+    marginTop: 20,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+    flexWrap: 'wrap' as const,
+  },
+  bannerLabel: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 4,
+    fontSize: '0.65rem',
+    fontWeight: 700,
+    color: '#666',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '1px',
+    whiteSpace: 'nowrap' as const,
+  },
+  startupLogos: {
+    display: 'flex',
+    flexWrap: 'wrap' as const,
+    gap: 6,
+  },
+  startupLogo: {
+    fontSize: '0.65rem',
+    fontWeight: 700,
+    padding: '3px 10px',
+    border: '1.5px solid',
+    letterSpacing: '0.5px',
+    opacity: 0.7,
   },
 };

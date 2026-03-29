@@ -10,6 +10,7 @@ import {
   ReferenceLine,
 } from 'recharts';
 import type { SimulationResults } from '../types';
+import { Icons } from './icons';
 
 interface HistogramProps {
   results: SimulationResults;
@@ -54,12 +55,19 @@ export default function OutcomeHistogram({ results, params }: HistogramProps) {
     <div style={styles.container} className="nb-card animate-slide-up">
       <div style={styles.header}>
         <h3 style={styles.title}>
-          <span>📊</span> Lifespan Distribution
+          <Icons.BarChart3 size={18} strokeWidth={2.5} />
+          Lifespan Distribution
         </h3>
         <span style={styles.badge}>
           {results.runs.length} runs
         </span>
       </div>
+      <p style={styles.explainer}>
+        <Icons.Info size={13} strokeWidth={2} style={{ flexShrink: 0 }} />
+        This histogram shows <strong>when</strong> startups went bankrupt. Each bar represents a 
+        time period. Taller bars = more startups failed during that period. 
+        The green bar at the end shows startups that <strong>survived the full duration</strong>.
+      </p>
       <div style={styles.chartWrapper}>
         <ResponsiveContainer width="100%" height={320}>
           <BarChart data={histogramData} margin={{ top: 10, right: 20, bottom: 20, left: 20 }}>
@@ -125,7 +133,7 @@ export default function OutcomeHistogram({ results, params }: HistogramProps) {
       <div style={styles.legend}>
         <div style={styles.legendItem}>
           <div style={{ ...styles.legendColor, background: '#EF4444' }} />
-          <span>Bankrupted (by month)</span>
+          <span>Went bankrupt (by month)</span>
         </div>
         <div style={styles.legendItem}>
           <div style={{ ...styles.legendColor, background: '#22C55E' }} />
@@ -144,7 +152,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 8,
   },
   title: {
     fontSize: '1rem',
@@ -163,6 +171,18 @@ const styles: Record<string, React.CSSProperties> = {
     color: 'var(--nb-yellow)',
     padding: '4px 10px',
     border: '2px solid var(--nb-black)',
+  },
+  explainer: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 6,
+    fontSize: '0.78rem',
+    color: '#777',
+    lineHeight: 1.5,
+    marginBottom: 16,
+    padding: '8px 12px',
+    background: '#f8f8f5',
+    border: '1px solid #e0e0e0',
   },
   chartWrapper: {
     border: 'var(--nb-border)',

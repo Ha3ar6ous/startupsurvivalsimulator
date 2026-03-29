@@ -1,18 +1,27 @@
+import { Icons } from './icons';
+
 interface SurvivalGaugeProps {
-  rate: number; // 0-100
+  rate: number;
 }
 
 export default function SurvivalGauge({ rate }: SurvivalGaugeProps) {
   const color = rate >= 70 ? 'var(--nb-green)' : rate >= 40 ? 'var(--nb-orange)' : 'var(--nb-red)';
-  const emoji = rate >= 70 ? '🟢' : rate >= 40 ? '🟡' : '🔴';
+
+  const GaugeIcon = rate >= 70 ? Icons.Shield : rate >= 40 ? Icons.AlertTriangle : Icons.Skull;
 
   return (
     <div style={styles.container} className="nb-card animate-slide-up">
       <div style={styles.header}>
         <h3 style={styles.title}>
-          <span>🎯</span> Survival Gauge
+          <Icons.Gauge size={18} strokeWidth={2.5} />
+          Survival Gauge
         </h3>
       </div>
+      <p style={styles.explainer}>
+        <Icons.Info size={13} strokeWidth={2} style={{ flexShrink: 0 }} />
+        This bar shows the overall survival probability. Green = safe, 
+        Yellow = risky, Red = likely to fail. Based on all simulation runs combined.
+      </p>
       <div style={styles.gaugeWrapper}>
         <div style={styles.gaugeBackground}>
           <div
@@ -26,22 +35,33 @@ export default function SurvivalGauge({ rate }: SurvivalGaugeProps) {
         <div style={styles.gaugeLabels}>
           <span style={styles.gaugeLabel}>0%</span>
           <span style={{ ...styles.gaugeCenter, color }}>
-            {emoji} {rate}%
+            <GaugeIcon size={18} strokeWidth={2.5} />
+            {rate}%
           </span>
           <span style={styles.gaugeLabel}>100%</span>
         </div>
       </div>
       <div style={styles.verdict}>
         {rate >= 80 ? (
-          <span style={{ color: 'var(--nb-green)' }}>💪 Strong survival outlook</span>
+          <span style={{ color: 'var(--nb-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <Icons.Shield size={16} strokeWidth={2.5} /> Strong survival outlook — low risk of bankruptcy
+          </span>
         ) : rate >= 60 ? (
-          <span style={{ color: 'var(--nb-green)' }}>👍 Good chances, some risk</span>
+          <span style={{ color: 'var(--nb-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <Icons.CheckCircle2 size={16} strokeWidth={2.5} /> Good chances, but some risk remains
+          </span>
         ) : rate >= 40 ? (
-          <span style={{ color: 'var(--nb-orange)' }}>⚠️ Moderate risk — proceed with caution</span>
+          <span style={{ color: 'var(--nb-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <Icons.AlertTriangle size={16} strokeWidth={2.5} /> Moderate risk — the startup may struggle
+          </span>
         ) : rate >= 20 ? (
-          <span style={{ color: 'var(--nb-red)' }}>🚨 High risk — survival unlikely</span>
+          <span style={{ color: 'var(--nb-red)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <Icons.Flame size={16} strokeWidth={2.5} /> High risk — survival is unlikely without changes
+          </span>
         ) : (
-          <span style={{ color: 'var(--nb-red)' }}>💀 Critical — near-certain failure</span>
+          <span style={{ color: 'var(--nb-red)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <Icons.Skull size={16} strokeWidth={2.5} /> Critical — near-certain failure with these settings
+          </span>
         )}
       </div>
     </div>
@@ -53,7 +73,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: 20,
   },
   header: {
-    marginBottom: 16,
+    marginBottom: 8,
   },
   title: {
     fontSize: '1rem',
@@ -63,6 +83,18 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     gap: 8,
+  },
+  explainer: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 6,
+    fontSize: '0.78rem',
+    color: '#777',
+    lineHeight: 1.5,
+    marginBottom: 16,
+    padding: '8px 12px',
+    background: '#f8f8f5',
+    border: '1px solid #e0e0e0',
   },
   gaugeWrapper: {
     marginBottom: 12,
@@ -101,11 +133,14 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: 'var(--font-mono)',
     fontSize: '1.3rem',
     fontWeight: 700,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
   },
   verdict: {
     textAlign: 'center' as const,
     fontWeight: 700,
-    fontSize: '0.9rem',
+    fontSize: '0.88rem',
     padding: '8px 0 0',
   },
 };

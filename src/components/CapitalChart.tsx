@@ -9,6 +9,7 @@ import {
   ReferenceLine,
 } from 'recharts';
 import type { SimulationResults } from '../types';
+import { Icons } from './icons';
 
 interface CapitalChartProps {
   results: SimulationResults;
@@ -21,6 +22,13 @@ const COLORS = [
   '#10B981', '#E11D48', '#0EA5E9', '#D946EF', '#14B8A6',
   '#F472B6', '#6366F1', '#34D399', '#FB923C', '#818CF8',
 ];
+
+function formatINR(v: number): string {
+  if (Math.abs(v) >= 10000000) return `₹${(v / 10000000).toFixed(1)}Cr`;
+  if (Math.abs(v) >= 100000) return `₹${(v / 100000).toFixed(0)}L`;
+  if (Math.abs(v) >= 1000) return `₹${(v / 1000).toFixed(0)}K`;
+  return `₹${v}`;
+}
 
 export default function CapitalChart({ results, maxRuns = 50 }: CapitalChartProps) {
   const { data, runKeys } = useMemo(() => {
@@ -39,12 +47,19 @@ export default function CapitalChart({ results, maxRuns = 50 }: CapitalChartProp
     <div style={styles.container} className="nb-card animate-slide-up">
       <div style={styles.header}>
         <h3 style={styles.title}>
-          <span>📈</span> Capital Over Time
+          <Icons.LineChart size={18} strokeWidth={2.5} />
+          Capital Over Time
         </h3>
         <span style={styles.badge}>
           {runKeys.length} sample runs
         </span>
       </div>
+      <p style={styles.explainer}>
+        <Icons.Info size={13} strokeWidth={2} style={{ flexShrink: 0 }} />
+        Each line represents one possible future for the startup. 
+        If a line touches the red dashed line (₹0), it means the startup went bankrupt in that scenario.
+        More spread = more uncertainty.
+      </p>
       <div style={styles.chartWrapper}>
         <ResponsiveContainer width="100%" height={380}>
           <LineChart data={data} margin={{ top: 10, right: 20, bottom: 10, left: 20 }}>
@@ -59,11 +74,7 @@ export default function CapitalChart({ results, maxRuns = 50 }: CapitalChartProp
               stroke="#1a1a1a"
               strokeWidth={2}
               tick={{ fontSize: 11, fontFamily: 'Space Mono' }}
-              tickFormatter={(v: number) => {
-                if (Math.abs(v) >= 1000000) return `$${(v / 1000000).toFixed(1)}M`;
-                if (Math.abs(v) >= 1000) return `$${(v / 1000).toFixed(0)}K`;
-                return `$${v}`;
-              }}
+              tickFormatter={formatINR}
             />
             <Tooltip
               contentStyle={{
@@ -74,7 +85,7 @@ export default function CapitalChart({ results, maxRuns = 50 }: CapitalChartProp
                 fontSize: 12,
               }}
               labelStyle={{ color: '#FFD60A', fontWeight: 700 }}
-              formatter={(value: number) => [`$${value.toLocaleString()}`, '']}
+              formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, '']}
               labelFormatter={(label: number) => `Month ${label}`}
             />
             <ReferenceLine
@@ -83,7 +94,7 @@ export default function CapitalChart({ results, maxRuns = 50 }: CapitalChartProp
               strokeWidth={2}
               strokeDasharray="8 4"
               label={{
-                value: '💀 BANKRUPTCY',
+                value: 'BANKRUPTCY LINE',
                 position: 'right',
                 fill: '#EF4444',
                 fontSize: 11,
@@ -117,7 +128,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 8,
   },
   title: {
     fontSize: '1rem',
@@ -136,6 +147,18 @@ const styles: Record<string, React.CSSProperties> = {
     color: 'var(--nb-yellow)',
     padding: '4px 10px',
     border: '2px solid var(--nb-black)',
+  },
+  explainer: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 6,
+    fontSize: '0.78rem',
+    color: '#777',
+    lineHeight: 1.5,
+    marginBottom: 16,
+    padding: '8px 12px',
+    background: '#f8f8f5',
+    border: '1px solid #e0e0e0',
   },
   chartWrapper: {
     border: 'var(--nb-border)',
