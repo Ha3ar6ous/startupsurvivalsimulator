@@ -1,6 +1,7 @@
 import type { SimulationResults, SimulationParams } from '../types';
 import { exportToJSON, exportToCSV } from '../utils/export';
 import { Icons } from './icons';
+import { Tooltip } from './Tooltip';
 
 interface ResultsPanelProps {
   results: SimulationResults | null;
@@ -38,7 +39,7 @@ export default function ResultsPanel({ results, params }: ResultsPanelProps) {
       <div style={styles.metricsRow}>
         <MetricCard
           label="Survival Rate"
-          sublabel="Chance of surviving"
+          sublabel="Probability of survival P(S)"
           value={`${results.survivalRate}%`}
           icon={<Icons.Shield size={22} strokeWidth={2} />}
           bg={survivalColor}
@@ -46,7 +47,7 @@ export default function ResultsPanel({ results, params }: ResultsPanelProps) {
         />
         <MetricCard
           label="Bankruptcy Rate"
-          sublabel="Chance of failing"
+          sublabel="Probability of failure P(F)"
           value={`${results.bankruptcyRate}%`}
           icon={<Icons.Skull size={22} strokeWidth={2} />}
           bg="var(--nb-red)"
@@ -54,14 +55,14 @@ export default function ResultsPanel({ results, params }: ResultsPanelProps) {
         />
         <MetricCard
           label="Avg Lifespan"
-          sublabel="Average months survived"
+          sublabel="Mean modeled time (t)"
           value={`${results.averageLifespan} mo`}
           icon={<Icons.Clock size={20} strokeWidth={2} />}
           bg="var(--nb-blue-light)"
         />
         <MetricCard
           label="Median Lifespan"
-          sublabel="Middle value of all runs"
+          sublabel="50th Percentile time"
           value={`${results.medianLifespan} mo`}
           icon={<Icons.BarChart2 size={20} strokeWidth={2} />}
           bg="var(--nb-purple-light)"
@@ -77,11 +78,11 @@ export default function ResultsPanel({ results, params }: ResultsPanelProps) {
           </h4>
           <table style={styles.table}>
             <tbody>
-              <StatRow label="Avg Final Capital" value={formatCurrency(results.averageFinalCapital)} help="Average money left at the end of all runs" />
-              <StatRow label="Median Final Capital" value={formatCurrency(results.medianFinalCapital)} help="Middle value — more reliable than average" />
-              <StatRow label="Total Simulations" value={results.runs.length.toLocaleString()} help="How many random scenarios were tested" />
-              <StatRow label="Survived" value={results.runs.filter(r => r.survived).length.toLocaleString()} help="Runs where startup made it to the end" />
-              <StatRow label="Went Bankrupt" value={results.runs.filter(r => !r.survived).length.toLocaleString()} help="Runs where startup ran out of money" />
+              <StatRow label="Avg Final Capital" value={formatCurrency(results.averageFinalCapital)} help="Expected Value (Mean): The mathematical average of ending capital across all simulations." />
+              <StatRow label="Median Final Capital" value={formatCurrency(results.medianFinalCapital)} help="Median (50th Percentile): The middle value of final capital. More reliable than the average if some runs make extreme profits." />
+              <StatRow label="Total Simulations" value={results.runs.length.toLocaleString()} help="Sample Size (N): Total number of stochastic (random) scenarios executed." />
+              <StatRow label="Survived" value={results.runs.filter(r => r.survived).length.toLocaleString()} help="Favorable Outcomes: Number of runs where the startup reached the end of the simulation without capital hitting 0." />
+              <StatRow label="Went Bankrupt" value={results.runs.filter(r => !r.survived).length.toLocaleString()} help="Failure Events: Number of runs that hit the terminal state (capital <= 0)." />
             </tbody>
           </table>
         </div>
@@ -92,11 +93,11 @@ export default function ResultsPanel({ results, params }: ResultsPanelProps) {
           </h4>
           <table style={styles.table}>
             <tbody>
-              <StatRow label="Std Deviation" value={`${results.stdDevLifespan} mo`} help="How spread out the results are — higher = more unpredictable" />
-              <StatRow label="10th Percentile" value={`${results.percentile10Lifespan} mo`} help="In the worst 10% of cases, the startup lasted this long" />
-              <StatRow label="90th Percentile" value={`${results.percentile90Lifespan} mo`} help="In the best 90% of cases, the startup lasted this long" />
-              <StatRow label="Sim Duration" value={`${params.simulationDuration} mo`} help="How many months were simulated" />
-              <StatRow label="Survival / Duration" value={`${Math.round((results.averageLifespan / params.simulationDuration) * 100)}%`} help="Average lifespan as a percentage of total duration" />
+              <StatRow label="Std Deviation" value={`${results.stdDevLifespan} mo`} help="Standard Deviation (σ): Measures volatility/dispersion of lifespans. Higher = more unpredictable outcomes." />
+              <StatRow label="10th Percentile" value={`${results.percentile10Lifespan} mo`} help="10th Percentile (P10): A risk measure showing the lifespan that 90% of all runs outlived." />
+              <StatRow label="90th Percentile" value={`${results.percentile90Lifespan} mo`} help="90th Percentile (P90): An upside measure showing the lifespan that only 10% of runs outlived." />
+              <StatRow label="Sim Duration" value={`${params.simulationDuration} mo`} help="Time Horizon: The discrete maximum time period (t) modeled in this simulation." />
+              <StatRow label="Survival / Duration" value={`${Math.round((results.averageLifespan / params.simulationDuration) * 100)}%`} help="Longevity Ratio: Average survived duration as a fraction of the total time horizon." />
             </tbody>
           </table>
         </div>
@@ -159,10 +160,12 @@ function MetricCard({
 
 function StatRow({ label, value, help }: { label: string; value: string; help: string }) {
   return (
-    <tr style={styles.tableRow} title={help}>
+    <tr style={styles.tableRow}>
       <td style={styles.tableLabel}>
         {label}
-        <Icons.Info size={11} strokeWidth={2} style={{ marginLeft: 4, color: '#bbb', verticalAlign: 'middle' }} />
+        <Tooltip text={help}>
+          <Icons.Info size={13} strokeWidth={2.5} style={{ marginLeft: 6, color: '#888', verticalAlign: 'text-bottom' }} />
+        </Tooltip>
       </td>
       <td style={styles.tableValue}>{value}</td>
     </tr>
@@ -279,7 +282,6 @@ const styles: Record<string, React.CSSProperties> = {
   },
   tableRow: {
     borderBottom: '1px solid #e5e5e5',
-    cursor: 'help',
   },
   tableLabel: {
     padding: '6px 0',
