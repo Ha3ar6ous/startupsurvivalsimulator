@@ -88,6 +88,17 @@ body {
 }
 
 /* ===== UTILITY CLASSES ===== */
+@keyframes progress-bar-stripes {
+  from { background-position: 40px 0; }
+  to { background-position: 0 0; }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 .nb-card {
   background: var(--nb-surface);
   border: var(--nb-border);

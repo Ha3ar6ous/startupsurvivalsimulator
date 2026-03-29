@@ -10,39 +10,55 @@ import OutcomeHistogram from './components/OutcomeHistogram';
 import SurvivalGauge from './components/SurvivalGauge';
 import AnimatedRun from './components/AnimatedRun';
 import GuidePanel from './components/GuidePanel';
+import SimulationRunning from './components/SimulationRunning';
 import { Icons } from './components/icons';
+
+type Tab = 'charts' | 'animated' | 'guide' | 'simulating';
 
 export default function App() {
   const [params, setParams] = useState<SimulationParams>(defaultParams as SimulationParams);
   const [results, setResults] = useState<SimulationResults | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [activeTab, setActiveTab] = useState<'charts' | 'animated' | 'guide'>('guide');
+  const [activeTab, setActiveTab] = useState<Tab>('guide');
   const [runCount, setRunCount] = useState(0);
   const runTimeRef = useRef<number>(0);
 
   const handleRunSimulation = useCallback(() => {
     setIsRunning(true);
     setProgress(0);
+    setActiveTab('simulating');
 
-    requestAnimationFrame(() => {
-      const startTime = performance.now();
-
-      const simResults = runSimulation(params, (prog) => {
-        setProgress(prog);
-      });
-
-      runTimeRef.current = Math.round(performance.now() - startTime);
-      setResults(simResults);
-      setProgress(100);
-      setRunCount((c) => c + 1);
-      setActiveTab('charts');
-
-      setTimeout(() => {
-        setIsRunning(false);
-      }, 300);
-    });
+    // Artificial delay to show simulation progress for modeling feel
+    let fakeProgress = 0;
+    const interval = setInterval(() => {
+      fakeProgress += Math.random() * 15;
+      if (fakeProgress >= 90) {
+        clearInterval(interval);
+        
+        // Run actual simulation
+        requestAnimationFrame(() => {
+          const startTime = performance.now();
+          const simResults = runSimulation(params, (prog) => {
+            // Keep actual progress within 90-100% range for the visual
+            setProgress(90 + (prog * 0.1));
+          });
+          
+          runTimeRef.current = Math.round(performance.now() - startTime);
+          setResults(simResults);
+          setProgress(100);
+          setRunCount((c) => c + 1);
+          setIsRunning(false);
+        });
+      } else {
+        setProgress(fakeProgress);
+      }
+    }, 150);
   }, [params]);
+
+  const viewResults = useCallback(() => {
+    setActiveTab('charts');
+  }, []);
 
   return (
     <div style={styles.app}>
@@ -55,48 +71,56 @@ export default function App() {
             params={params}
             onParamsChange={setParams}
             onRunSimulation={handleRunSimulation}
-            isRunning={isRunning}
+            isRunning={isRunning || (activeTab === 'simulating' && progress < 100)}
             progress={progress}
           />
         </aside>
 
-        {/* Right Panel: Results */}
+        {/* Right Panel: Results Area */}
         <section style={styles.content}>
-          {/* Tab Switcher */}
-          <div style={styles.tabBar}>
-            <button
-              className={`nb-btn nb-btn-sm ${activeTab === 'guide' ? 'nb-btn-primary' : ''}`}
-              onClick={() => setActiveTab('guide')}
-              style={styles.tabBtn}
-            >
-              <Icons.BookOpen size={14} strokeWidth={2.5} />
-              How It Works
-            </button>
-            <button
-              className={`nb-btn nb-btn-sm ${activeTab === 'charts' ? 'nb-btn-primary' : ''}`}
-              onClick={() => setActiveTab('charts')}
-              style={styles.tabBtn}
-            >
-              <Icons.BarChart3 size={14} strokeWidth={2.5} />
-              Results
-            </button>
-            <button
-              className={`nb-btn nb-btn-sm ${activeTab === 'animated' ? 'nb-btn-primary' : ''}`}
-              onClick={() => setActiveTab('animated')}
-              style={styles.tabBtn}
-            >
-              <Icons.Eye size={14} strokeWidth={2.5} />
-              Watch a Run
-            </button>
-            {runTimeRef.current > 0 && (
-              <span style={styles.runTime}>
-                <Icons.Zap size={12} strokeWidth={2.5} />
-                {runTimeRef.current}ms | Run #{runCount}
-              </span>
-            )}
-          </div>
+          {/* Tab Switcher - Only show if not currently simulating */}
+          {activeTab !== 'simulating' && (
+            <div style={styles.tabBar}>
+              <button
+                className={`nb-btn nb-btn-sm ${activeTab === 'guide' ? 'nb-btn-primary' : ''}`}
+                onClick={() => setActiveTab('guide')}
+                style={styles.tabBtn}
+              >
+                <Icons.BookOpen size={14} strokeWidth={2.5} />
+                How It Works
+              </button>
+              <button
+                className={`nb-btn nb-btn-sm ${activeTab === 'charts' ? 'nb-btn-primary' : ''}`}
+                onClick={() => setActiveTab('charts')}
+                style={styles.tabBtn}
+              >
+                <Icons.BarChart3 size={14} strokeWidth={2.5} />
+                Results
+              </button>
+              <button
+                className={`nb-btn nb-btn-sm ${activeTab === 'animated' ? 'nb-btn-primary' : ''}`}
+                onClick={() => setActiveTab('animated')}
+                style={styles.tabBtn}
+              >
+                <Icons.Eye size={14} strokeWidth={2.5} />
+                Watch a Run
+              </button>
+              {runTimeRef.current > 0 && (
+                <span style={styles.runTime}>
+                  <Icons.Zap size={12} strokeWidth={2.5} />
+                  {runTimeRef.current}ms | Run #{runCount}
+                </span>
+              )}
+            </div>
+          )}
 
-          {activeTab === 'guide' ? (
+          {activeTab === 'simulating' ? (
+            <SimulationRunning 
+              progress={progress} 
+              onViewResults={viewResults} 
+              autoSwitchSeconds={10} 
+            />
+          ) : activeTab === 'guide' ? (
             <div style={styles.resultsArea}>
               <GuidePanel />
             </div>
@@ -138,6 +162,7 @@ const styles: Record<string, React.CSSProperties> = {
     minHeight: '100vh',
     display: 'flex',
     flexDirection: 'column',
+    background: '#fff',
   },
   main: {
     display: 'grid',
