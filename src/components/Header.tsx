@@ -83,7 +83,7 @@ const indianStartups = [
   { name: 'Paytm', color: '#00BAF2' },
   { name: 'PhonePe', color: '#5F259F' },
   { name: 'Razorpay', color: '#3395FF' },
-  { name: 'CRED', color: '#000000' },
+  { name: 'CRED', color: '#FFFFFF' },
   { name: 'Zerodha', color: '#387ED1' },
   { name: 'Groww', color: '#00D09C' },
   { name: 'Ola', color: '#1C8C37' },
@@ -93,10 +93,10 @@ const indianStartups = [
   { name: 'Mamaearth', color: '#00AE44' },
   { name: 'BYJU\'S', color: '#8B2F9A' },
   { name: 'boAt', color: '#E53935' },
-  { name: 'Urban Company', color: '#000000' },
+  { name: 'Urban Company', color: '#FFFFFF' },
   { name: 'Postman', color: '#FF6C37' },
   { name: 'Unacademy', color: '#08BD80' },
-  { name: 'PhysicsWallah', color: '#1A1A1A' },
+  { name: 'PhysicsWallah', color: '#FFFFFF' },
 ];
 
 const styles: Record<string, React.CSSProperties> = {
