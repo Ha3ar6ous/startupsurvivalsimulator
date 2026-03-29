@@ -185,7 +185,7 @@ const styles: Record<string, React.CSSProperties> = {
     width: '100%',
   },
   sidebar: {
-    padding: '20px 0 20px 20px',
+    padding: '20px',
     borderRight: '4px solid var(--nb-black)',
     background: 'var(--nb-bg)',
     height: '100vh',

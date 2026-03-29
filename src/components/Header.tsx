@@ -53,16 +53,22 @@ export default function Header() {
 
         {/* Indian Startup Marquee */}
         <div style={styles.startupBanner}>
-          <span style={styles.bannerLabel}>
+          <div style={styles.bannerLabel}>
             <Icons.Building2 size={12} strokeWidth={2.5} />
             INSPIRED BY
-          </span>
-          <div style={styles.startupLogos}>
-            {indianStartups.map((s) => (
-              <span key={s.name} style={{ ...styles.startupLogo, color: s.color, borderColor: s.color }}>
-                {s.name}
-              </span>
-            ))}
+          </div>
+          <div style={styles.marqueeContainer}>
+            <div className="nb-marquee">
+              {/* Render twice for continuous scrolling */}
+              {[...indianStartups, ...indianStartups].map((s, idx) => (
+                <span 
+                  key={`${s.name}-${idx}`} 
+                  style={{ ...styles.startupLogo, color: s.color, borderColor: s.color }}
+                >
+                  {s.name}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -73,14 +79,24 @@ export default function Header() {
 const indianStartups = [
   { name: 'Flipkart', color: '#2874F0' },
   { name: 'Zomato', color: '#E23744' },
+  { name: 'Swiggy', color: '#FC8019' },
   { name: 'Paytm', color: '#00BAF2' },
+  { name: 'PhonePe', color: '#5F259F' },
   { name: 'Razorpay', color: '#3395FF' },
-  { name: 'CRED', color: '#E5E5E5' },
+  { name: 'CRED', color: '#000000' },
   { name: 'Zerodha', color: '#387ED1' },
+  { name: 'Groww', color: '#00D09C' },
   { name: 'Ola', color: '#1C8C37' },
-  { name: 'BYJU\'S', color: '#8B2F9A' },
   { name: 'Zepto', color: '#6C2DC7' },
+  { name: 'Lenskart', color: '#00BAC6' },
+  { name: 'Nykaa', color: '#FC2779' },
+  { name: 'Mamaearth', color: '#00AE44' },
+  { name: 'BYJU\'S', color: '#8B2F9A' },
   { name: 'boAt', color: '#E53935' },
+  { name: 'Urban Company', color: '#000000' },
+  { name: 'Postman', color: '#FF6C37' },
+  { name: 'Unacademy', color: '#08BD80' },
+  { name: 'PhysicsWallah', color: '#1A1A1A' },
 ];
 
 const styles: Record<string, React.CSSProperties> = {
@@ -150,34 +166,41 @@ const styles: Record<string, React.CSSProperties> = {
     letterSpacing: '0.5px',
   },
   startupBanner: {
-    marginTop: 20,
+    marginTop: 24,
     display: 'flex',
     alignItems: 'center',
-    gap: 12,
-    flexWrap: 'wrap' as const,
+    gap: 16,
+    borderTop: '1px solid #333',
+    paddingTop: 16,
+    overflow: 'hidden',
+  },
+  marqueeContainer: {
+    flex: 1,
+    overflow: 'hidden',
+    position: 'relative' as const,
   },
   bannerLabel: {
-    display: 'inline-flex',
+    display: 'flex',
     alignItems: 'center',
     gap: 4,
     fontSize: '0.65rem',
-    fontWeight: 700,
-    color: '#666',
+    fontWeight: 900,
+    color: 'var(--nb-yellow)',
     textTransform: 'uppercase' as const,
     letterSpacing: '1px',
     whiteSpace: 'nowrap' as const,
-  },
-  startupLogos: {
-    display: 'flex',
-    flexWrap: 'wrap' as const,
-    gap: 6,
+    zIndex: 2,
+    background: 'var(--nb-black)',
+    paddingRight: 8,
   },
   startupLogo: {
     fontSize: '0.65rem',
-    fontWeight: 700,
-    padding: '3px 10px',
-    border: '1.5px solid',
+    fontWeight: 800,
+    padding: '4px 12px',
+    border: '2px solid',
     letterSpacing: '0.5px',
-    opacity: 0.7,
+    background: 'rgba(255,255,255,0.05)',
+    whiteSpace: 'nowrap' as const,
+    boxShadow: '1px 1px 0px currentColor',
   },
 };

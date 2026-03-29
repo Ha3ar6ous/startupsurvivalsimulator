@@ -256,6 +256,22 @@ body {
   100% { background-position: 40px 0; }
 }
 
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.nb-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+  gap: 12px;
+}
+
+.nb-marquee:hover {
+  animation-play-state: paused;
+}
+
 .animate-slide-up {
   animation: slideUp 0.4s ease-out;
 }
