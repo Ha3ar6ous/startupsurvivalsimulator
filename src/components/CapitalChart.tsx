@@ -85,8 +85,8 @@ export default function CapitalChart({ results, maxRuns = 50 }: CapitalChartProp
                 fontSize: 12,
               }}
               labelStyle={{ color: '#FFD60A', fontWeight: 700 }}
-              formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, '']}
-              labelFormatter={(label: number) => `Month ${label}`}
+              formatter={(value: any) => [`₹${value.toLocaleString('en-IN')}`, '']}
+              labelFormatter={(label: any) => `Month ${label}`}
             />
             <ReferenceLine
               y={0}

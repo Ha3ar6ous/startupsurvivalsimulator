@@ -213,8 +213,8 @@ export default function AnimatedRun({ params }: AnimatedRunProps) {
                 fontFamily: 'Space Mono',
                 fontSize: 12,
               }}
-              formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, 'Capital']}
-              labelFormatter={(label: number) => `Month ${label}`}
+              formatter={(value: any) => [`₹${value.toLocaleString('en-IN')}`, 'Capital']}
+              labelFormatter={(label: any) => `Month ${label}`}
             />
             <ReferenceLine y={0} stroke="#EF4444" strokeWidth={2} strokeDasharray="8 4" />
             <Line
