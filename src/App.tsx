@@ -149,17 +149,18 @@ const styles: Record<string, React.CSSProperties> = {
     width: '100%',
   },
   sidebar: {
-    padding: 20,
-    borderRight: 'var(--nb-border)',
+    padding: '20px 0 20px 20px',
+    borderRight: '4px solid var(--nb-black)',
     background: 'var(--nb-bg)',
-    maxHeight: 'calc(100vh - 160px)',
-    overflowY: 'auto' as const,
+    height: '100vh',
     position: 'sticky' as const,
     top: 0,
+    zIndex: 100,
   },
   content: {
     padding: 24,
     minHeight: '100vh',
+    background: '#fff',
   },
   tabBar: {
     display: 'flex',

@@ -1,73 +1,78 @@
-# React + TypeScript + Vite
+# 🚀 Startup Survival Simulator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A powerful, interactive web application designed to model and simulate startup survival under uncertainty using **Monte Carlo simulation** and stochastic processes. 
 
-Currently, two official plugins are available:
+Built with a bold **Neobrutalist** design system, this tool allows entrepreneurs and students to explore how randomness in revenue, costs, funding, and market conditions affects the probability of a startup's success.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+![Startup Simulator Preview](https://github.com/Ha3ar6ous/startupsurvivalsimulator/raw/main/preview.png)
 
-## React Compiler
+## ✨ Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Monte Carlo Engine**: Runs 100 to 5000+ simulations in milliseconds using a high-performance JavaScript engine.
+- **India-Specific Presets**: Configurations inspired by real-world Indian startup models (D2C, Fintech, Ed-Tech, Quick Commerce).
+- **Interactive Visualizations**:
+  - **Capital Paths**: Multi-run overlay line charts showing individual "possible futures".
+  - **Lifespan Distribution**: Color-coded histograms for bankruptcy vs. survival data.
+  - **Survival Gauge**: Instant probability verdict based on statistical outcomes.
+- **Animated Run Mode**: Step-by-step playback of a single simulation run to observe month-by-month changes.
+- **Data Export**: Export your simulation results to **JSON** or **CSV** for further analysis.
+- **Educational Guide**: Built-in documentation on M&S concepts (Stochastic modeling, Gaussian distribution, variance, risk).
 
-## Expanding the ESLint configuration
+## 🛠️ Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Frontend**: [React](https://reactjs.org/) (Hooks & Functional Components)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Charts**: [Recharts](https://recharts.org/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Styling**: Custom CSS (Vanilla) with Neobrutalism tokens
+- **Build Tool**: [Vite](https://vitejs.dev/)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 📂 Project Structure
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```text
+src/
+├── components/          # React Components
+│   ├── AnimatedRun      # Step-by-step simulation playback
+│   ├── CapitalChart     # Recharts multi-line chart
+│   ├── ControlPanel     # Configuration UI & Presets
+│   ├── GuidePanel       # Educational content & docs
+│   ├── Header           # Branding & startup marquee
+│   ├── Icons            # Centralized Lucide icon map
+│   ├── OutcomeHistogram # Survival distribution chart
+│   ├── ResultsPanel     # Metrics & statistical tables
+│   ├── SurvivalGauge    # Probability visualizer
+│   └── Tooltip          # Accessible info help
+├── engine/              # Core Logic
+│   └── simulation.ts    # Monte Carlo simulation engine
+├── presets/             # Data
+│   └── scenarios.ts     # Pre-defined startup scenarios
+├── utils/               # Utilities
+│   └── export.ts        # CSV/JSON export logic
+├── types.ts             # Global TypeScript interfaces
+├── App.tsx              # Main layout & state orchestration
+├── main.tsx             # Application entry point
+└── index.css            # Neobrutalist design system & tokens
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🧠 Modeling & Simulation Concepts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+This project implements several key M&S concepts:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **Stochastic Processes**: Modeling evolution over time using random variables.
+- **Monte Carlo Method**: Repeated random sampling to obtain numerical results.
+- **Gaussian (Normal) Distribution**: Used for realistic revenue and market noise.
+- **Risk Assessment**: Using variance, standard deviation, and percentiles to quantify business risk.
+
+## 🚀 Getting Started
+
+1. Clone the repository: `git clone https://github.com/Ha3ar6ous/startupsurvivalsimulator.git`
+2. Install dependencies: `npm install`
+3. Run developmental server: `npm run dev`
+4. Build for production: `npm run build`
+
+## 📄 License
+
+MIT
+
+---
+*Built for the Modeling & Simulation subject to bridge the gap between business and math.*
