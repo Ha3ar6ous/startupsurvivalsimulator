@@ -18,37 +18,71 @@ interface HistogramProps {
 }
 
 export default function OutcomeHistogram({ results, params }: HistogramProps) {
-  const histogramData = useMemo(() => {
+  const { histogramData, insight } = useMemo(() => {
     const lifespans = results.runs.map(
       (r) => r.bankruptcyMonth ?? params.simulationDuration
     );
 
+    // Separate bankrupted and survived
+    const bankrupted = lifespans.filter(l => l < params.simulationDuration);
+    const survivedCount = lifespans.filter(l => l >= params.simulationDuration).length;
+
     const maxLife = params.simulationDuration;
     const bucketCount = Math.min(20, maxLife);
     const bucketSize = Math.ceil(maxLife / bucketCount);
-    const buckets: { range: string; count: number; month: number }[] = [];
+
+    type BucketData = {
+      range: string;
+      bankrupted: number;
+      survived: number;
+      month: number;
+    };
+
+    const buckets: BucketData[] = [];
 
     for (let i = 0; i < bucketCount; i++) {
       const start = i * bucketSize + 1;
       const end = Math.min((i + 1) * bucketSize, maxLife);
       buckets.push({
         range: start === end ? `${start}` : `${start}-${end}`,
-        count: 0,
+        bankrupted: 0,
+        survived: 0,
         month: start,
       });
     }
 
-    lifespans.forEach((l) => {
+    // Fill bankruptcy buckets
+    bankrupted.forEach((l) => {
       const bucketIndex = Math.min(Math.floor((l - 1) / bucketSize), bucketCount - 1);
       if (bucketIndex >= 0 && bucketIndex < buckets.length) {
-        buckets[bucketIndex].count++;
+        buckets[bucketIndex].bankrupted++;
       }
     });
 
-    return buckets;
+    // Put survived count in the last bucket
+    if (buckets.length > 0) {
+      buckets[buckets.length - 1].survived = survivedCount;
+    }
+
+    // Generate insight text
+    const survivalRate = results.survivalRate;
+    const bankruptedCount = results.runs.length - survivedCount;
+    let insightText = '';
+
+    if (survivalRate >= 95) {
+      insightText = `Almost all runs (${survivedCount}/${results.runs.length}) survived the full ${params.simulationDuration} months. The green bar at the end represents these survivors. This indicates a very stable configuration with low variance in outcomes.`;
+    } else if (survivalRate >= 70) {
+      insightText = `${survivedCount} out of ${results.runs.length} runs survived. The red bars show when bankruptcies occurred — notice the spread. ${bankruptedCount} runs ended early, mostly due to random cost spikes or revenue dips.`;
+    } else if (survivalRate >= 30) {
+      insightText = `Only ${survivedCount} out of ${results.runs.length} runs survived. The red bars reveal a wide distribution of failure times — some fail early (capital runs out fast), others last longer but still go bankrupt. High variance in outcomes indicates significant risk.`;
+    } else {
+      insightText = `Very few runs survived (${survivedCount}/${results.runs.length}). The histogram shows where most bankruptcies cluster. If failures are concentrated early, initial capital is insufficient. If spread out, randomness in costs/revenue is the primary factor.`;
+    }
+
+    return { histogramData: buckets, insight: insightText };
   }, [results, params.simulationDuration]);
 
-  const maxCount = Math.max(...histogramData.map((d) => d.count));
+  const maxCount = Math.max(...histogramData.map((d) => d.bankrupted + d.survived));
   const avgLifespan = results.averageLifespan;
 
   return (
@@ -56,7 +90,7 @@ export default function OutcomeHistogram({ results, params }: HistogramProps) {
       <div style={styles.header}>
         <h3 style={styles.title}>
           <Icons.BarChart3 size={18} strokeWidth={2.5} />
-          Lifespan Distribution
+          Outcome Distribution (Frequency Histogram)
         </h3>
         <span style={styles.badge}>
           {results.runs.length} runs
@@ -64,10 +98,12 @@ export default function OutcomeHistogram({ results, params }: HistogramProps) {
       </div>
       <p style={styles.explainer}>
         <Icons.Info size={13} strokeWidth={2} style={{ flexShrink: 0 }} />
-        This histogram shows <strong>when</strong> startups went bankrupt. Each bar represents a 
-        time period. Taller bars = more startups failed during that period. 
-        The green bar at the end shows startups that <strong>survived the full duration</strong>.
+        This <strong>frequency histogram</strong> shows the distribution of simulation outcomes across time. 
+        The x-axis represents <strong>when</strong> each run ended (in months). 
+        Red bars = runs that went bankrupt during that period. 
+        Green bar = runs that <strong>survived the entire duration</strong>.
       </p>
+      
       <div style={styles.chartWrapper}>
         <ResponsiveContainer width="100%" height={320}>
           <BarChart data={histogramData} margin={{ top: 10, right: 20, bottom: 20, left: 20 }}>
@@ -76,13 +112,13 @@ export default function OutcomeHistogram({ results, params }: HistogramProps) {
               stroke="#1a1a1a"
               strokeWidth={2}
               tick={{ fontSize: 10, fontFamily: 'Space Mono' }}
-              label={{ value: 'Months', position: 'bottom', offset: 5, fontSize: 12, fontWeight: 700 }}
+              label={{ value: 'Time Period (Months)', position: 'bottom', offset: 5, fontSize: 12, fontWeight: 700 }}
             />
             <YAxis
               stroke="#1a1a1a"
               strokeWidth={2}
               tick={{ fontSize: 11, fontFamily: 'Space Mono' }}
-              label={{ value: 'Runs', angle: -90, position: 'insideLeft', offset: 10, fontSize: 12, fontWeight: 700 }}
+              label={{ value: 'Frequency (Runs)', angle: -90, position: 'insideLeft', offset: 10, fontSize: 12, fontWeight: 700 }}
             />
             <Tooltip
               contentStyle={{
@@ -93,8 +129,11 @@ export default function OutcomeHistogram({ results, params }: HistogramProps) {
                 fontSize: 12,
               }}
               labelStyle={{ color: '#FFD60A', fontWeight: 700 }}
-              formatter={(value: number) => [`${value} runs`, 'Count']}
-              labelFormatter={(label: string) => `Months ${label}`}
+              formatter={(value: any, name: any) => [
+                `${value} runs`, 
+                name === 'bankrupted' ? 'Bankrupt' : 'Survived'
+              ]}
+              labelFormatter={(label: any) => `Months ${label}`}
             />
             <ReferenceLine
               x={histogramData.find(
@@ -106,39 +145,67 @@ export default function OutcomeHistogram({ results, params }: HistogramProps) {
               strokeWidth={2}
               strokeDasharray="6 3"
               label={{
-                value: `AVG: ${avgLifespan}mo`,
+                value: `MEAN: ${avgLifespan}mo`,
                 position: 'top',
                 fill: '#A855F7',
                 fontSize: 11,
                 fontWeight: 700,
               }}
             />
-            <Bar dataKey="count" radius={0}>
+            <Bar dataKey="bankrupted" stackId="a" radius={0}>
               {histogramData.map((entry, index) => {
-                const intensity = entry.count / maxCount;
-                const isLastBucket = index === histogramData.length - 1;
+                const intensity = maxCount > 0 ? entry.bankrupted / maxCount : 0;
                 return (
                   <Cell
-                    key={index}
-                    fill={isLastBucket ? '#22C55E' : `rgba(239, 68, 68, ${0.3 + intensity * 0.7})`}
+                    key={`b-${index}`}
+                    fill={`rgba(239, 68, 68, ${0.3 + intensity * 0.7})`}
                     stroke="#1a1a1a"
                     strokeWidth={2}
                   />
                 );
               })}
             </Bar>
+            <Bar dataKey="survived" stackId="a" radius={0}>
+              {histogramData.map((_entry, index) => (
+                <Cell
+                  key={`s-${index}`}
+                  fill="#22C55E"
+                  stroke="#1a1a1a"
+                  strokeWidth={2}
+                />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>
+
       <div style={styles.legend}>
         <div style={styles.legendItem}>
           <div style={{ ...styles.legendColor, background: '#EF4444' }} />
-          <span>Went bankrupt (by month)</span>
+          <span>Bankrupt (terminated early)</span>
         </div>
         <div style={styles.legendItem}>
           <div style={{ ...styles.legendColor, background: '#22C55E' }} />
           <span>Survived full duration</span>
         </div>
+        <div style={styles.legendItem}>
+          <div style={{ ...styles.legendColor, background: '#A855F7' }} />
+          <span>Mean lifespan</span>
+        </div>
+      </div>
+
+      {/* Contextual Insight */}
+      <div style={styles.insightBox}>
+        <div style={styles.insightHeader}>
+          <Icons.Lightbulb size={14} strokeWidth={2.5} />
+          INTERPRETATION
+        </div>
+        <p style={styles.insightText}>{insight}</p>
+        <p style={styles.insightNote}>
+          <strong>M&S Concept:</strong> This histogram represents an <em>empirical probability distribution</em> — 
+          each bar's height (frequency) divided by total runs gives the empirical probability of that outcome 
+          occurring. The shape of this distribution reveals the system's stochastic behavior.
+        </p>
       </div>
     </div>
   );
@@ -194,6 +261,7 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 20,
     marginTop: 12,
     justifyContent: 'center',
+    flexWrap: 'wrap' as const,
   },
   legendItem: {
     display: 'flex',
@@ -206,5 +274,37 @@ const styles: Record<string, React.CSSProperties> = {
     width: 16,
     height: 16,
     border: '2px solid var(--nb-black)',
+  },
+  insightBox: {
+    marginTop: 16,
+    padding: '14px 16px',
+    border: '2px solid var(--nb-black)',
+    background: 'var(--nb-yellow-light)',
+  },
+  insightHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    fontSize: '0.7rem',
+    fontWeight: 900,
+    letterSpacing: '1px',
+    marginBottom: 8,
+    textTransform: 'uppercase' as const,
+  },
+  insightText: {
+    margin: 0,
+    fontSize: '0.82rem',
+    lineHeight: 1.5,
+    color: '#444',
+    marginBottom: 8,
+  },
+  insightNote: {
+    margin: 0,
+    fontSize: '0.75rem',
+    lineHeight: 1.4,
+    color: '#666',
+    paddingTop: 8,
+    borderTop: '1px solid rgba(0,0,0,0.1)',
+    fontStyle: 'italic' as const,
   },
 };

@@ -5,7 +5,7 @@ import {
   Activity, AlertTriangle, CheckCircle2, XCircle, Clock, Percent, LineChart,
   BarChart2, Sparkles, Rocket, Shield, Skull, Heart, ArrowRight, Settings,
   BookOpen, Lightbulb, CircleDot, Layers, Gauge, Timer, DollarSign,
-  PieChart, Users, Building2, Flame, Award, Star, Eye, Ban,
+  PieChart, Users, Building2, Flame, Award, Star, Eye, Ban, ExternalLink,
 } from 'lucide-react';
 import type { ComponentType } from 'react';
 
@@ -18,7 +18,7 @@ export const Icons = {
   Activity, AlertTriangle, CheckCircle2, XCircle, Clock, Percent, LineChart,
   BarChart2, Sparkles, Rocket, Shield, Skull, Heart, ArrowRight, Settings,
   BookOpen, Lightbulb, CircleDot, Layers, Gauge, Timer, DollarSign,
-  PieChart, Users, Building2, Flame, Award, Star, Eye, Ban,
+  PieChart, Users, Building2, Flame, Award, Star, Eye, Ban, ExternalLink,
 };
 
 // Map preset icon names to components

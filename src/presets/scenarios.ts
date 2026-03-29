@@ -2,8 +2,8 @@ import type { PresetScenario } from '../types';
 
 export const presetScenarios: PresetScenario[] = [
   {
-    name: 'Chai Tapri to Brand',
-    description: 'Start small like Chaayos — low capital, steady daily sales, growing a local food brand.',
+    name: 'Small Retail',
+    description: 'Low capital, steady sales, growing a local retail brand with minimal external funding.',
     emoji: 'coffee',
     params: {
       initialCapital: 200000,
@@ -23,8 +23,8 @@ export const presetScenarios: PresetScenario[] = [
     },
   },
   {
-    name: 'Ed-Tech Startup',
-    description: 'Inspired by BYJU\'s early days — moderate investment, subscription revenue, high growth potential.',
+    name: 'Ed-Tech Platform',
+    description: 'Moderate investment, subscription-based revenue model, high growth potential in education sector.',
     emoji: 'graduation-cap',
     params: {
       initialCapital: 2000000,
@@ -44,8 +44,8 @@ export const presetScenarios: PresetScenario[] = [
     },
   },
   {
-    name: 'Quick Commerce',
-    description: 'Like Zepto/Blinkit — high burn rate, fast growth, frequent funding needed to survive.',
+    name: 'Rapid Delivery',
+    description: 'High burn rate, aggressive growth, frequent external funding needed to sustain operations.',
     emoji: 'zap',
     params: {
       initialCapital: 5000000,
@@ -65,8 +65,8 @@ export const presetScenarios: PresetScenario[] = [
     },
   },
   {
-    name: 'Freelance to Agency',
-    description: 'A freelancer on Upwork growing into a small IT agency — like many Indian service companies.',
+    name: 'Service Agency',
+    description: 'A small IT services firm growing organically — low capital, moderate revenue volatility.',
     emoji: 'briefcase',
     params: {
       initialCapital: 100000,
@@ -86,8 +86,8 @@ export const presetScenarios: PresetScenario[] = [
     },
   },
   {
-    name: 'Fintech Disruptor',
-    description: 'Inspired by Razorpay/Paytm — strong funding pipeline, high costs, winner-takes-all market.',
+    name: 'Fintech Venture',
+    description: 'Heavy funding pipeline, high operational costs, competitive winner-takes-all market dynamics.',
     emoji: 'indian-rupee',
     params: {
       initialCapital: 10000000,
@@ -108,7 +108,7 @@ export const presetScenarios: PresetScenario[] = [
   },
   {
     name: 'D2C Brand',
-    description: 'Like Mamaearth/boAt — direct-to-consumer, social media driven, moderate investment.',
+    description: 'Direct-to-consumer model, social media driven growth, moderate initial investment.',
     emoji: 'shopping-bag',
     params: {
       initialCapital: 500000,

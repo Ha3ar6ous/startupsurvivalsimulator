@@ -149,8 +149,19 @@ export default function App() {
           <Icons.Dices size={14} strokeWidth={2.5} />
           Startup Survival Simulator — Monte Carlo Engine
         </span>
+        <span style={styles.footerCenter}>
+          Made with{' '}
+          <Icons.Heart size={13} strokeWidth={2.5} style={{ color: '#EF4444', fill: '#EF4444', verticalAlign: 'middle' }} />
+          {' '}by{' '}
+          <a href="https://github.com/RiteshJha912" target="_blank" rel="noopener noreferrer" style={styles.footerLink}>
+            Ritesh
+          </a>
+        </span>
         <span style={styles.footerRight}>
-          Built with React + Recharts | Modeling & Simulation Project
+          <a href="https://github.com/Ha3ar6ous/startupsurvivalsimulator" target="_blank" rel="noopener noreferrer" style={styles.starLink}>
+            <Icons.Star size={13} strokeWidth={2.5} style={{ color: '#FFD60A', fill: '#FFD60A' }} />
+            Star on GitHub
+          </a>
         </span>
       </footer>
     </div>
@@ -233,7 +244,30 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     gap: 6,
   },
+  footerCenter: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    color: '#aaa',
+  },
+  footerLink: {
+    color: 'var(--nb-yellow)',
+    textDecoration: 'none',
+    fontWeight: 700,
+  },
   footerRight: {
-    color: '#666',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  starLink: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    color: '#aaa',
+    textDecoration: 'none',
+    fontWeight: 700,
+    padding: '4px 12px',
+    border: '2px solid #444',
+    transition: 'all 0.2s',
   },
 };

@@ -246,29 +246,15 @@ export default function ControlPanel({
                         {formatValue(params[field.key], field.unit)}
                       </div>
                     </div>
-                    
-                    <div style={styles.inputStack}>
-                      <input
-                        type="range"
-                        min={field.min}
-                        max={field.max}
-                        step={field.step}
-                        value={params[field.key]}
-                        onChange={(e) => updateParam(field.key, parseFloat(e.target.value))}
-                        style={{
-                          ...styles.slider,
-                          accentColor: 'var(--nb-black)',
-                        }}
-                      />
-                      <div style={styles.numberInputWrapper}>
-                        <input
-                          type="number"
-                          value={params[field.key]}
-                          onChange={(e) => updateParam(field.key, parseFloat(e.target.value) || 0)}
-                          style={styles.numberInput}
-                        />
-                      </div>
-                    </div>
+                    <input
+                      type="range"
+                      min={field.min}
+                      max={field.max}
+                      step={field.step}
+                      value={params[field.key]}
+                      onChange={(e) => updateParam(field.key, parseFloat(e.target.value))}
+                      style={{ ...styles.slider, accentColor: 'var(--nb-black)' }}
+                    />
                   </div>
                 ))}
               </div>
@@ -409,32 +395,12 @@ const styles: Record<string, React.CSSProperties> = {
     border: '2px solid var(--nb-black)',
     boxShadow: '2px 2px 0px var(--nb-black)',
   },
-  inputStack: {
-    display: 'flex',
-    flexDirection: 'column' as const,
-    gap: 8,
-  },
   slider: {
     width: '100%',
-    height: '12px',
+    height: '8px',
     cursor: 'pointer',
-    margin: 0,
-    WebkitAppearance: 'none' as any,
-    background: '#eee',
-    border: '2px solid var(--nb-black)',
-  },
-  numberInputWrapper: {
-    width: '100%',
-  },
-  numberInput: {
-    width: '100%',
-    padding: '6px 10px',
-    fontSize: '0.8rem',
-    fontFamily: 'var(--font-mono)',
-    fontWeight: 700,
-    border: '2px solid var(--nb-black)',
-    background: 'var(--nb-white)',
-    outline: 'none',
+    margin: '4px 0 0 0',
+    accentColor: 'var(--nb-black)',
   },
   runSection: {
     marginTop: 20,
